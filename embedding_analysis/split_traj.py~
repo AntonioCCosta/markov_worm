@@ -1,0 +1,43 @@
+import h5py
+import numpy as np
+import numpy.ma as ma
+import argparse
+import sys
+sys.path.append('/home/a/antonio-costa/theory_manuscript/')
+import new_op_calc as op_calc
+
+def main(argv):
+    parser.add_argument('-size','--S',help="traj length",default=11200,type=int)
+    args=parser.parse_args()
+    size = args.S
+
+    print('Loading data ...')
+
+    mat=h5py.File('/home/a/antonio-costa/theory_manuscript/Foraging/data/PNAS2011-DataStitched.mat','r')
+    refs=list(mat['#refs#'].keys())[1:]
+    tseries_w=[ma.masked_invalid(np.array(mat['#refs#'][ref]).T)[:,:5] for ref in  refs]
+    mat.close()
+
+    
+    dtrajs = []
+    for ts in tseries_w:
+        for ks in range(3):
+            dtrajs.append(ts[ks*size:(ks+1)*size])
+
+    print(len(dtrajs))
+              
+    output_dir = '/flash/StephensU/antonio/Foraging/split_ts_trajs/'
+    
+    f = h5py.File(output_dir+'split_ts_trajs.h5','w')
+    for kt in range(len(dtrajs)):
+        print(dtrajs[kt].shape)
+        idx_ = f.create_group(str(kt))
+        dt_ = idx_.create_dataset('traj',dtrajs[kt].shape)
+        dt_[...] = dtrajs[kt]
+    l_ = f.create_dataset('seq_length',(1,))
+    l_[...] = size
+    f.close()
+    
+    
+if __name__ == "__main__":
+    main(sys.argv)
