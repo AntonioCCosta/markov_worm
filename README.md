@@ -1,6 +1,6 @@
 # markov_worm
 
-This repository contains the scripts for reproducting the results presented:
+This repository contains the scripts for reproducting the results presented in
 
 Costa AC, Ahamed T, Jordan D, Stephens GJ (2023) "The Markov worm: bridging scales in *C. elegans* behavior"
 
