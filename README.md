@@ -8,7 +8,6 @@ This model is able to predict worm foraging behavior across scales, from sub-sec
 
 The accuracy of the simulations makes it challenging to distinguish data from simulations.
 
-https://github.com/AntonioCCosta/markov_worm/assets/10087987/b0717632-de29-440a-9cdd-91b7fb039d5a
+https://github.com/AntonioCCosta/markov_worm/assets/10087987/5f48bfd4-8ed5-41ab-8729-e1e0a81857b4
 
-https://github.com/AntonioCCosta/markov_worm/assets/10087987/0fa7dca7-c3cf-42a4-b60d-03157b652693
-
+https://github.com/AntonioCCosta/markov_worm/assets/10087987/27eeec33-1bdc-4114-8001-65c1fc5637e0
