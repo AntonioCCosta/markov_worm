@@ -3,6 +3,8 @@ import h5py
 import scipy.io
 import matplotlib.pyplot as plt
 
+#this script is based on a matlab implementation from Keavey et al. (2017) Physical Biology
+#https://github.com/aexbrown/Crawl_Model
 
 def get_skels(theta,L):
     numAngles = theta.shape[0]
@@ -49,7 +51,7 @@ def get_RBM(skel, L, ds, dt):
     Uskel_CM = ds*np.trapz(Uskel,axis=1)/L
     UXCM = Uskel_CM[:,0]
     UYCM = Uskel_CM[:,1]
-    
+
     TX, TY = TvecFromSkel(X,Y,ds)
     NX = -TY
     NY = TX
@@ -64,7 +66,7 @@ def get_RBM(skel, L, ds, dt):
     I = ds*np.trapz(Iint,axis=1)
     OMEG = ds*np.trapz(Omegint,axis=1)/I
     OMEG = OMEG[:-1]
-    
+
     return XCM, YCM, UX, UY, UXCM, UYCM, TX, TY, NX, NY, I, OMEG
 
 
@@ -92,7 +94,7 @@ def subtractRBM(X, Y, XCM, YCM, UX, UY, UXCM, UYCM, OMEG, dt):
             THETA[i] = THETA[i-1] + OMEG[it1]*dt
             Xtil[i,:]= np.cos(THETA[i])*DX[i,:] + np.sin(THETA[i])*DY[i,:]
             Ytil[i,:] = np.cos(THETA[i])*DY[i,:] - np.sin(THETA[i])*DX[i,:]
-            
+
     VX = UX - np.tile(UXCM.reshape(-1,1),(1,X.shape[1])) + ODY
     VY = UY - np.tile(UYCM.reshape(-1,1),(1,X.shape[1])) - ODX
 
@@ -169,10 +171,10 @@ def integrateRBM(RBM, dt, THETAr):
     RBM[:,0] = Xt[:,0]
     RBM[:,1] = Yt[:,0]
 
-    for i in range(1,Nt):  
+    for i in range(1,Nt):
         XCM[i] = XCM[i-1] + RBM[i-1,0]*dt
-        YCM[i] = YCM[i-1] + RBM[i-1,1]*dt  
-    
+        YCM[i] = YCM[i-1] + RBM[i-1,1]*dt
+
     return XCM,YCM,THETA
 
 def addRBMRotMat(Xtil, Ytil, XCM, YCM, THETA, XCMi, YCMi, THETAi):
