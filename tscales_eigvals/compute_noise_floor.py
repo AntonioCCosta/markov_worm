@@ -4,7 +4,8 @@ import argparse
 import sys
 import time
 import h5py
-sys.path.append('/home/a/antonio-costa/TransferOperators/bridging_scales_manuscript/utils/')
+#replace 'path_to_utils' and 'path_to_data'
+sys.path.append('path_to_utils')
 import operator_calculations as op_calc
 
 
@@ -23,12 +24,12 @@ def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('-kw','--worm',help='worm',default=0,type=int)
     args=parser.parse_args()
-    
+
     kw = int(args.worm)
-    
-    
+
+
     n_clusters=1000
-    f = h5py.File('/bucket/StephensU/antonio/ForagingN2_data/symbol_sequences/labels_{}_clusters.h5'.format(n_clusters),'r')
+    f = h5py.File('path_to_data/symbol_sequences/labels_{}_clusters.h5'.format(n_clusters),'r')
     labels_traj = ma.array(f['labels_traj'],dtype=int)
     mask_traj = np.array(f['mask_traj'],dtype=bool)
     f.close()
@@ -36,25 +37,25 @@ def main(argv):
     labels_traj[mask_traj] = ma.masked
 
     labels_w = labels_traj.reshape((12,33600))
-    
+
     labels = labels_w[kw]
 
     print(labels[:20],labels.shape)
-    
+
     n_clusters=1000
     n_modes = 100
     dt = 1/16.
     nstates = n_clusters
     delay_range = np.unique(np.array(np.logspace(0,4,200),dtype=int))
     print(delay_range.shape)
-    
+
     n_shuffle = 100
-    
+
     ts_traj_shuffle = np.zeros((len(delay_range),n_shuffle))
     eigvals_traj_shuffle = np.zeros((len(delay_range),n_shuffle))
     ts_traj_w = np.zeros((len(delay_range),n_modes))
     eigvals_traj_w = np.zeros((len(delay_range),n_modes))
-    
+
     for kd,delay in enumerate(delay_range):
         P = op_calc.transition_matrix(labels,delay)
         R = op_calc.get_reversible_transition_matrix(P)
@@ -69,11 +70,11 @@ def main(argv):
             eigvals,eigvecs = op_calc.sorted_spectrum(R,k=2)
             timp = -(delay*dt)/np.log(eigvals[1].real)
             ts_traj_shuffle[kd,ks] = timp
-            eigvals_traj_shuffle[kd,ks] = eigvals[1].real        
+            eigvals_traj_shuffle[kd,ks] = eigvals[1].real
         print(kd,delay,flush=True)
-        
+
     print('Saving results',flush=True)
-    f = h5py.File('/flash/StephensU/antonio/Foraging/tscales_noise_floor/results_{}.h5'.format(kw),'w')
+    f = h5py.File('path_to_data/tscales_noise_floor/results_{}.h5'.format(kw),'w')
     ts_s = f.create_dataset('ts_traj_shuffle',ts_traj_shuffle.shape)
     ts_s[...] = ts_traj_shuffle
     eigs_s = f.create_dataset('eigvals_traj_shuffle',eigvals_traj_shuffle.shape)
@@ -87,6 +88,6 @@ def main(argv):
     n = f.create_dataset('n_clusters',(1,))
     n[...] = n_clusters
     f.close()
-    
+
 if __name__ == "__main__":
     main(sys.argv)

@@ -8,7 +8,8 @@ import scipy.io
 import numpy as np
 import numpy.ma as ma
 import scipy.io
-sys.path.append('/home/a/antonio-costa/modes2centroid_python/')
+#replace 'path_to_utils' and 'path_to_data'
+sys.path.append('path_to_utils')
 import rft_reconstruct_traj as rt
 
 
@@ -37,7 +38,7 @@ def MSD_unc(x, lags=500, exclude=None):
             displacements = ma.sum((x0 - x1)**2,axis=1)
             mu[i] = displacements.mean()
             Unc[i]=len(displacements.compressed())
-    return mu,Unc 
+    return mu,Unc
 
 from scipy.signal import welch
 
@@ -51,7 +52,7 @@ def compute_ps(X,frameRate,nfreqs=1000):
                    fs=frameRate,  # sample rate
                    window='hanning',   # apply a Hanning window before taking the DFT
                    nperseg=10*60*frameRate,        # compute periodograms of 256-long segments of x
-                   detrend='constant') 
+                   detrend='constant')
     sel = f>1e-3
     freq = f[sel]
     phi_psd = psd[sel]
@@ -64,12 +65,12 @@ def rec_traj_from_sim(angleArray,L,dt,alpha=35.):
     skel = rt.get_skels(theta,L)
     X = skel[:,:,0]
     Y = skel[:,:,1]
-    
+
     XCM, YCM, UX, UY, UXCM, UYCM, TX, TY, NX, NY, I, OMEG = rt.get_RBM(skel,L,ds,dt)
     DX, DY, ODX, ODY, VX, VY, Xtil, Ytil, THETA = rt.subtractRBM(X, Y, XCM, YCM, UX, UY, UXCM, UYCM, OMEG, dt)
     TX,TY = rt.lab2body(TX, TY, THETA)
     VX,VY = rt.lab2body(VX, VY, THETA)
-    
+
     RBM = rt.posture2RBM(TX,TY,Xtil,Ytil,VX,VY,L,I,ds,alpha)
     XCM_recon,YCM_recon,THETA_recon = rt.integrateRBM(RBM,dt,THETA)
     Xrecon = np.vstack([XCM_recon,YCM_recon]).T
@@ -83,25 +84,25 @@ def main(argv):
     args=parser.parse_args()
 
     state_idx = args.State
-    
-    eigenworms_matrix = np.loadtxt('/bucket/StephensU/antonio/ForagingN2_data/EigenWorms.csv', delimiter=',').astype(np.float32)
-    
+
+    eigenworms_matrix = np.loadtxt('path_to_data/EigenWorms.csv', delimiter=',').astype(np.float32)
+
     frameRate=16.
     dt=1/frameRate
-    
+
     n_sims=1000
-    
+
     L=1
     alpha=30.
-    
+
     lags_msd = np.unique(np.array(np.logspace(np.log10(frameRate),np.log10(int(500*frameRate)),250),dtype=int))
     mu_sims = np.zeros((n_sims,len(lags_msd)))
     psd_sims = []
     for ks in range(n_sims):
-        f = h5py.File('/bucket/StephensU/antonio/ForagingN2_data/animations/tseries_sims_state_{}.h5'.format(state_idx),'r')
+        f = h5py.File('path_to_data/animations/tseries_sims_state_{}.h5'.format(state_idx),'r')
         ts = np.array(f['ts_smooth_sims'])[ks]
         thetas = ts.dot(eigenworms_matrix[:,:5].T)
-        f.close()    
+        f.close()
         angleArray = thetas.T
         Xrecon =  rec_traj_from_sim(angleArray,L,dt,alpha=alpha)
         mu_,Unc_ = MSD_unc(ma.array(Xrecon),lags=lags_msd)
@@ -110,12 +111,12 @@ def main(argv):
         psd_sims.append(psd)
         if ks%5==0:
             print(ks,flush=True)
-            
+
     psd_sims = np.vstack(psd_sims)
     freq = f
-            
+
     print(mu_sims.shape,flush=True)
-    
+
     print('Saving msd results',flush=True)
     output_path = '/flash/StephensU/antonio/Foraging/msds_psds_states/'
     f = h5py.File(output_path+'state_{}.h5'.format(state_idx),'w')

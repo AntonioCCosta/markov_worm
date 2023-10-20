@@ -3,8 +3,9 @@ import h5py
 #numpy
 import sys
 import os
-sys.path.append('/home/a/antonio-costa/BehaviorModel/utils/')
-import new_op_calc as op_calc
+#replace 'path_to_utils' and 'path_to_data'
+sys.path.append('path_to_utils')
+import operator_calculations as op_calc
 import worm_dynamics as worm_dyn
 import stats
 import clustering_methods as cl
@@ -42,24 +43,24 @@ def MSD_unc(x, lags=500, exclude=None):
             displacements = ma.sum((x0 - x1)**2,axis=1)
             mu[i] = displacements.mean()
             Unc[i]=len(displacements.compressed())
-    return mu,Unc 
+    return mu,Unc
 
 
 
-def main():    
+def main():
     frameRate=16.
     dt=1/frameRate
-    
+
     print('Loading sims')
-    f = h5py.File('/flash/StephensU/antonio/Foraging/centroid_simulations/X_scaled_avg_worm.h5','r')
+    f = h5py.File('path_to_data/centroid_simulations/X_scaled_avg_worm.h5','r')
     X_sims = np.array(f['X_scaled'])
     f.close()
 
     print(X_sims.shape,flush=True)
 
     print('Computing MSDs',flush=True)
-            
-    n_sims = X_sims.shape[0]    
+
+    n_sims = X_sims.shape[0]
     lags_msd = np.arange(0,int(15*60*frameRate),int(.5*np.ceil(frameRate)))
     mu_sims = np.zeros((n_sims,len(lags_msd)))
     for ks in range(n_sims):
@@ -67,11 +68,11 @@ def main():
         mu_sims[ks] = mu_
         if ks%5==0:
             print(ks,flush=True)
-            
+
     print(mu_sims.shape,flush=True)
-    
+
     print('Saving msd results',flush=True)
-    output_path = '/flash/StephensU/antonio/Foraging/msds/'
+    output_path = 'path_to_data/msds/'
     f = h5py.File(output_path+'msds_avg_worm.h5','w')
     mu_sim_ = f.create_dataset('mu_sims',mu_sims.shape)
     mu_sim_[...] = mu_sims

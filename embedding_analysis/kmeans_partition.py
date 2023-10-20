@@ -1,7 +1,8 @@
 import numpy as np
 import numpy.ma as ma
 import sys
-sys.path.append('/home/a/antonio-costa/theory_manuscript/')
+#replace 'path_to_utils' and 'path_to_data'
+sys.path.append('path_to_utils')
 import clustering_methods as cl
 import operator_calculations as op_calc
 import delay_embedding as embed
@@ -13,19 +14,19 @@ import time
 def main(argv):
     start_t = time.time()
     parser = argparse.ArgumentParser()
-    
+
     parser.add_argument('-idx','--Idx',help="idx",default=0,type=int)
     args=parser.parse_args()
     idx = args.Idx
 
-    K,idx = np.array(np.loadtxt('/home/a/antonio-costa/theory_manuscript/Foraging/embedding_analysis/iteration_indices_K_1_60.txt')[idx],dtype=int)
+    K,idx = np.array(np.loadtxt('iteration_indices_K_1_60.txt')[idx],dtype=int)
     print(K,idx)
 
     seed_range = np.array(10**np.array(np.arange(.5,3.8,.25),dtype=float),dtype=int)
 
     print('Loading data ...')
-    
-    mat=h5py.File('/bucket/StephensU/antonio/ForagingN2_data/PNAS2011-DataStitched.mat','r')
+
+    mat=h5py.File('path_to_data/PNAS2011-DataStitched.mat','r')
     refs=list(mat['#refs#'].keys())[1:]
     tseries_w=[ma.masked_invalid(np.array(mat['#refs#'][ref]).T)[:,:5] for ref in  refs]
     mat.close()
@@ -36,7 +37,7 @@ def main(argv):
     print(tseries[:20])
     #tseries = tseries[:1000]
     #seed_range = seed_range[:2]
-        
+
     print('Compute entropies ...')
     H_K_s = np.zeros(len(seed_range))
     prob_K_s = np.zeros(len(seed_range))
@@ -49,7 +50,7 @@ def main(argv):
         labels,centers = cl.kmeans_knn_partition(traj_matrix,n_seeds,return_centers=True)
         labels = ma.array(labels,dtype=int)
         max_epsilon = np.mean([np.max(np.linalg.norm(traj_matrix[labels==kc]-centers[kc],axis=0)) for kc in np.sort(np.unique(labels.compressed()))])
-        
+
         P = op_calc.transition_matrix(labels,1)
         prob = op_calc.stationary_distribution(P)
         H = -np.sum(prob*np.log(prob))
@@ -60,9 +61,9 @@ def main(argv):
         Ipred_K_s[ks] = H-h
         eps_K_s[ks] = max_epsilon
         print(n_seeds)
-    
+
     print('Saving results ...')
-    f = h5py.File('/flash/StephensU/antonio/Foraging/embedding_results/entropic_properties_K_{}_{}.h5'.format(K,idx),'w')
+    f = h5py.File('path_to_data/embedding_results/entropic_properties_K_{}_{}.h5'.format(K,idx),'w')
     probs_ = f.create_dataset('probs',prob_K_s.shape)
     probs_[...] = prob_K_s
     H_ = f.create_dataset('entropies',H_K_s.shape)

@@ -2,8 +2,8 @@ import numpy as np
 import h5py
 import os
 
-def main():                
-    results_path = '/flash/StephensU/antonio/Foraging/embedding_results/'
+def main():
+    results_path = 'path_to_data/embedding_results/'
     K_range=np.arange(1,61)
     #sample file
     f = h5py.File(results_path+'entropic_properties_K_1_0.h5','r')
@@ -12,7 +12,7 @@ def main():
 
     n_segs = 12
     seg_range = np.arange(n_segs)
-    
+
     probs_K_s = np.zeros((len(K_range),len(seed_range),n_segs))
     H_K_s = np.zeros((len(K_range),len(seed_range),n_segs))
     Ipred_K_s = np.zeros((len(K_range),len(seed_range),n_segs))
@@ -30,7 +30,7 @@ def main():
                 f.close()
             except:
                 print('Could not compute for K = {} and idx={}'.format(K,seg_idx))
-    f = h5py.File('partition_combined_results.h5','w')
+    f = h5py.File('path_to_data/partition_combined_results.h5','w')
     probs_ = f.create_dataset('probs',probs_K_s.shape)
     probs_[...] = probs_K_s
     H_ = f.create_dataset('entropies',H_K_s.shape)
@@ -48,6 +48,6 @@ def main():
     f.close()
 
 
-    
+
 if __name__ == "__main__":
     main()

@@ -4,12 +4,13 @@ import numpy as np
 import numpy.ma as ma
 import argparse
 import sys
-sys.path.append('/home/a/antonio-costa/TransferOperators/bridging_scales_manuscript/utils/')
+#replace 'path_to_utils' and 'path_to_data'
+sys.path.append('path_to_utils')
 import operator_calculations as op_calc
 import time
 from scipy.sparse import csr_matrix,lil_matrix
 import warnings
-warnings.filterwarnings("ignore", category=RuntimeWarning) 
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 def shuffle_masked(labels):
     segs = op_calc.segment_maskedArray(labels)
@@ -30,16 +31,16 @@ def main(argv):
     delay_range = np.unique(np.array(np.logspace(0,3.5,100),dtype=int))
     print(delay_range.shape)
     n_clusters = 1000
-    f = h5py.File('/bucket/StephensU/antonio/ForagingN2_data/symbol_sequences/labels_{}_clusters.h5'.format(n_clusters),'r')
+    f = h5py.File('path_to_data/symbol_sequences/labels_{}_clusters.h5'.format(n_clusters),'r')
     labels_traj = ma.array(f['labels_traj'],dtype=int)
     mask_traj = np.array(f['mask_traj'],dtype=bool)
     f.close()
     labels_traj[mask_traj] = ma.masked
     labels_w = labels_traj.reshape((12,33600))
     labels = labels_w[kw]
-    
+
     print(labels[:10],labels.shape,labels.shape,flush=True)
-    dt = 1/16    
+    dt = 1/16
     n_shuffle=100
     eigs = np.zeros(delay_range.shape[0])
     eigvals_traj_shuffle = np.zeros((len(delay_range),n_shuffle))
@@ -51,7 +52,7 @@ def main(argv):
             R = op_calc.get_reversible_transition_matrix(P)
             eigvals,eigvecs = op_calc.sorted_spectrum(R,k=2)
             eigfunctions = eigvecs.real/np.linalg.norm(eigvecs.real,axis=0)
-            phi2 = eigfunctions[:,1]   
+            phi2 = eigfunctions[:,1]
             kmeans_labels = op_calc.optimal_partition(phi2,inv_measure,P,return_rho=False)
             cluster_traj = ma.copy(final_labels)
             cluster_traj[~final_labels.mask] = ma.array(kmeans_labels)[final_labels[~final_labels.mask]]
@@ -68,12 +69,12 @@ def main(argv):
                 except:
                     eigvals_traj_shuffle[kd,ks] = np.nan
         except:
-            print('Blurped for kd={}'.format(kd),flush=True)
+            print('Failed to compute for kd={}'.format(kd),flush=True)
             continue
         print(kd,flush=True)
     print(eigvals_traj_shuffle.mean(),flush=True)
-        
-    f = h5py.File('/flash/StephensU/antonio/Foraging/kinetic_properties/coarse_eigvals_{}.h5'.format(kw),'w')
+
+    f = h5py.File('path_to_data/kinetic_properties/coarse_eigvals_{}.h5'.format(kw),'w')
     eigvals_ = f.create_dataset('eigs',eigs.shape)
     eigvals_[...]=eigs
     eigvals_s = f.create_dataset('eigvals_traj_shuffle',eigvals_traj_shuffle.shape)

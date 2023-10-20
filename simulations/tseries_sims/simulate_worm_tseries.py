@@ -3,8 +3,9 @@ import h5py
 #numpy
 import sys
 import os
-sys.path.append('/home/a/antonio-costa/BehaviorModel/utils/')
-import new_op_calc as op_calc
+#replace 'path_to_utils' and 'path_to_data'
+sys.path.append('path_to_utils')
+import operator_calculations as op_calc
 import worm_dynamics as worm_dyn
 import stats
 import clustering_methods as cl
@@ -73,7 +74,7 @@ def main(argv):
     worm_idx = args.Worm
 
     print('Loading data',flush=True)
-    mat=h5py.File('/bucket/StephensU/antonio/ForagingN2_data/PNAS2011-DataStitched.mat','r')
+    mat=h5py.File('path_to_data/PNAS2011-DataStitched.mat','r')
     refs=list(mat['#refs#'].keys())[1:]
     tseries_data=ma.masked_invalid(np.array(mat['#refs#'][refs[worm_idx]]).T)[:,:5]
     mat.close()
@@ -84,23 +85,23 @@ def main(argv):
     delay=12
     K_star=11
 
-    f = h5py.File('/bucket/StephensU/antonio/ForagingN2_data/phspace_K_10_m_7.h5','r')
+    f = h5py.File('path_to_data/phspace_K_10_m_7.h5','r')
     traj_matrix = ma.masked_invalid(ma.array(f['traj_matrix']))
     traj_matrix[traj_matrix==0] = ma.masked
     components = np.array(f['modes'])
     f.close()
 
     n_clusters=1000
-    f = h5py.File('/bucket/StephensU/antonio/ForagingN2_data/symbol_sequences/labels_{}_clusters.h5'.format(n_clusters),'r')
+    f = h5py.File('path_to_data/symbol_sequences/labels_{}_clusters.h5'.format(n_clusters),'r')
     labels = ma.array(f['labels_traj'],dtype=int)
     mask_labels = np.array(f['mask_traj'],dtype=bool)
     labels[mask_labels] = ma.masked
     f.close()
-    
+
     traj_matrix = traj_matrix[worm_idx*len_w:(worm_idx+1)*len_w]
     labels = labels[worm_idx*len_w:(worm_idx+1)*len_w]
-    
-    f = h5py.File('/bucket/StephensU/antonio/ForagingN2_data/symbol_sequence_simulations.h5','r')
+
+    f = h5py.File('path_to_data/symbol_sequence_simulations.h5','r')
     sims = np.array(f[str(worm_idx)]['sims'],dtype=int)
     f.close()
 
@@ -119,8 +120,8 @@ def main(argv):
     ts_sims_shuffled = ma.masked_invalid(ts_sims_shuffled)
     ts_sims_shuffled[ts_sims_shuffled==0]=ma.masked
     print('Interpolating gaps and smoothing',flush=True)
-    
-   
+
+
 
     ts_interp_sims=[]
     ts_smooth_sims=[]
@@ -132,22 +133,22 @@ def main(argv):
         ts_smooth = smooth_ts(ts_interp)
         ts_interp_sims.append(ts_interp)
         ts_smooth_sims.append(ts_smooth)
-        
+
         ts_shuffled_sim = ts_sims_shuffled[ks]
         ts_shuffled_interp = interpolate_gaps(ts_shuffled_sim)
         ts_shuffled_smooth = smooth_ts(ts_shuffled_interp)
         ts_shuffled_interp_sims.append(ts_shuffled_interp)
         ts_shuffled_smooth_sims.append(ts_shuffled_smooth)
-        
-        
+
+
     ts_interp_sims = np.array(ts_interp_sims)
     ts_smooth_sims = np.array(ts_smooth_sims)
     ts_shuffled_interp_sims = np.array(ts_shuffled_interp_sims)
-    ts_shuffled_smooth_sims = np.array(ts_shuffled_smooth_sims)        
+    ts_shuffled_smooth_sims = np.array(ts_shuffled_smooth_sims)
     print(ts_interp_sims.shape,ts_sims.shape,ts_smooth_sims.shape,ts_shuffled_interp_sims.shape,ts_shuffled_smooth_sims.shape,flush=True)
-    
+
     print('Saving results',flush=True)
-    output_path = '/flash/StephensU/antonio/Foraging/animations/'
+    output_path = 'path_to_data/animations/'
     f = h5py.File(output_path+'tseries_sims_{}.h5'.format(worm_idx),'w')
     ts_ = f.create_dataset('ts_sims',ts_sims.shape)
     ts_[...] = ts_sims
@@ -170,5 +171,3 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv)
-    
-    

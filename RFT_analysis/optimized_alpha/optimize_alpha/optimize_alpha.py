@@ -4,7 +4,8 @@ import argparse
 import numpy.ma as ma
 import sys
 import os
-sys.path.append('/home/a/antonio-costa/modes2centroid_python/')
+#replace 'path_to_utils' and 'path_to_data'
+sys.path.append('path_to_utils')
 import rft_reconstruct_traj as rt
 from scipy.io import loadmat
 
@@ -12,7 +13,7 @@ from scipy.optimize import minimize
 
 
 def dist_alpha(alpha,params):
-    
+
     def posture2RBM(TX, TY, Xtil, Ytil, VX, VY, L, I, ds, alpha):
         RBM = np.zeros((TX.shape[0]-1,3))
 
@@ -50,8 +51,8 @@ def dist_alpha(alpha,params):
                 bvec = bvec[0]
             RBM[i, :] = np.linalg.lstsq(Amat.T, bvec,rcond=-1)[0]
         return RBM
-    
-    
+
+
     def body2lab(X,Y,THETA):
         Xp = np.zeros(X.shape)
         Yp = np.zeros(X.shape)
@@ -59,7 +60,7 @@ def dist_alpha(alpha,params):
             Xp[i,:]= np.cos(THETA[i])*X[i,:] - np.sin(THETA[i])*Y[i,:]
             Yp[i,:] = np.cos(THETA[i])*Y[i,:] + np.sin(THETA[i])*X[i,:]
         return Xp,Yp
-    
+
     def integrateRBM(RBM, dt, THETAr):
         RBM = RBM.copy()
         Nt = RBM.shape[0]+1
@@ -73,13 +74,13 @@ def dist_alpha(alpha,params):
         Xt,Yt = body2lab(RBM[:,0].reshape(-1,1), RBM[:,1].reshape(-1,1), THETA)
         RBM[:,0] = Xt[:,0]
         RBM[:,1] = Yt[:,0]
-        for i in range(1,Nt):  
+        for i in range(1,Nt):
             XCM[i] = XCM[i-1] + RBM[i-1,0]*dt
-            YCM[i] = YCM[i-1] + RBM[i-1,1]*dt  
+            YCM[i] = YCM[i-1] + RBM[i-1,1]*dt
         return XCM,YCM,THETA
-    
+
     R = lambda theta: np.array(((np.cos(theta), -np.sin(theta)), (np.sin(theta), np.cos(theta))))
-    
+
     TX,TY,Xtil,Ytil,VX,VY,L,I,ds,dt,THETA,X_data_c = params
     RBM = posture2RBM(TX,TY,Xtil,Ytil,VX,VY,L,I,ds,alpha)
     XCM_recon,YCM_recon,THETA_recon = integrateRBM(RBM,dt,THETA)
@@ -95,22 +96,22 @@ def main(argv):
     parser.add_argument('-idx','--Idx',help='index',default=0,type=int)
     args=parser.parse_args()
     idx = int(args.Idx)
-    
+
     print('Load data',flush=True)
-    
-    mat=h5py.File('/bucket/StephensU/antonio/ForagingN2_data/PNAS2011-DataStitched.mat','r')
+
+    mat=h5py.File('path_to_data/PNAS2011-DataStitched.mat','r')
     refs=list(mat['#refs#'].keys())[1:]
     tseries_w=[ma.masked_invalid(np.array(mat['#refs#'][ref]).T)[:,:5] for ref in refs]
     mat.close()
     frameRate=16.
     dt=1/frameRate
-    
+
     n_worms = len(tseries_w)
 
-    eigenworms_matrix = np.loadtxt('/bucket/StephensU/antonio/ForagingN2_data/EigenWorms.csv', delimiter=',').astype(np.float32)
+    eigenworms_matrix = np.loadtxt('path_to_data/EigenWorms.csv', delimiter=',').astype(np.float32)
     thetas_w = ma.array([ts.dot(eigenworms_matrix[:,:5].T) for ts in tseries_w])
 
-    mat = loadmat('/bucket/StephensU/antonio/ForagingN2_data/shapes.mat')
+    mat = loadmat('path_to_data/shapes.mat')
     theta_ensemble = np.array(mat['theta_ensemble'],dtype=float)
     stepper_to_mm = 788
     wormCM = ma.array(mat['wormCm'][:,::2,:],dtype=float)/stepper_to_mm
@@ -118,10 +119,10 @@ def main(argv):
     headTail_theta_w = np.array(mat['wormHeadTailTheta'],dtype=float)
     pix_to_mm = 405
     wormLength = ma.array(mat['wormLength'],dtype=float)/pix_to_mm
-    wormLength[wormLength==0]=ma.masked    
-    
+    wormLength[wormLength==0]=ma.masked
+
     L_w = np.array([np.median(wormLength[kw].compressed())for kw in range(n_worms)])
-    
+
     #flip back worms that were previously flipped
     theta_ensemble = ma.masked_invalid(theta_ensemble)
     theta_ensemble[theta_ensemble==0]= ma.masked
@@ -131,19 +132,19 @@ def main(argv):
     flipped_worms = np.arange(n_worms)[np.array(mean_diff)>1]
     for kw in flipped_worms:
         thetas_w[kw] = -thetas_w[kw]
-    
+
     print('Grab random segs',flush=True)
 
-    
+
     #grab a random segment
     wsize = int(100*frameRate)
     theta_all = ma.vstack(thetas_w)[:,0]
     n_frames = len(theta_all)
     len_w = len(thetas_w[0])
     indices = np.arange(n_frames-2*wsize)[~np.any(np.vstack([theta_all[t:t+wsize].mask for t in range(n_frames-2*wsize)]),axis=1)]
-    
+
     print('Optimize alpha',flush=True)
-    
+
     n_sims = 10
     random_indices = np.random.randint(0,len(indices),n_sims)
     opt_alphas = np.zeros(n_sims)
@@ -183,10 +184,10 @@ def main(argv):
             print(i,kw,random_idx,opt_alpha,flush=True)
         except:
             print('optimization failed for kw={}, t0={}'.format(kw,random_idx))
-        
+
     print('Save results',flush=True)
 
-    f = h5py.File('/flash/StephensU/antonio/Foraging/optimize_alpha/opt_alphas_{}.h5'.format(idx),'w')
+    f = h5py.File('path_to_data/optimize_alpha/opt_alphas_{}.h5'.format(idx),'w')
     ar = f.create_dataset('opt_alphas',opt_alphas.shape)
     ar[...] = opt_alphas
     w_ = f.create_dataset('kw_sims',kw_sims.shape)
@@ -194,7 +195,7 @@ def main(argv):
     rt_ = f.create_dataset('t0_sims',t0_sims.shape)
     rt_[...] = t0_sims
     f.close()
-    
-    
+
+
 if __name__ == "__main__":
     main(sys.argv)

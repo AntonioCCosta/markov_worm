@@ -3,8 +3,9 @@ import h5py
 #numpy
 import sys
 import os
-sys.path.append('/home/a/antonio-costa/BehaviorModel/utils/')
-import new_op_calc as op_calc
+#replace 'path_to_utils' and 'path_to_data'
+sys.path.append('path_to_utils')
+import operator_calculations as op_calc
 import worm_dynamics as worm_dyn
 import stats
 import clustering_methods as cl
@@ -84,7 +85,7 @@ def main(argv):
     worm_idx = 0
 
     print('Loading data',flush=True)
-    mat=h5py.File('/bucket/StephensU/antonio/ForagingN2_data/PNAS2011-DataStitched.mat','r')
+    mat=h5py.File('path_to_data/PNAS2011-DataStitched.mat','r')
     refs=list(mat['#refs#'].keys())[1:]
     tseries_data=ma.masked_invalid(np.array(mat['#refs#'][refs[worm_idx]]).T)[:,:5]
     mat.close()
@@ -95,32 +96,30 @@ def main(argv):
     delay=12
     K_star=11
 
-    f = h5py.File('/bucket/StephensU/antonio/ForagingN2_data/phspace_K_10_m_7.h5','r')
+    f = h5py.File('path_to_data/phspace_K_10_m_7.h5','r')
     traj_matrix = ma.masked_invalid(ma.array(f['traj_matrix']))
     traj_matrix[traj_matrix==0] = ma.masked
     components = np.array(f['modes'])
     f.close()
 
     n_clusters=1000
-    f = h5py.File('/bucket/StephensU/antonio/ForagingN2_data/symbol_sequences/labels_{}_clusters.h5'.format(n_clusters),'r')
+    f = h5py.File('path_to_data/symbol_sequences/labels_{}_clusters.h5'.format(n_clusters),'r')
     labels_traj = ma.array(f['labels_traj'],dtype=int)
     mask_labels = np.array(f['mask_traj'],dtype=bool)
     labels_traj[mask_labels] = ma.masked
     f.close()
-    
-    
-    f = h5py.File('/home/a/antonio-costa/theory_manuscript/Foraging/animations/labels_tree.h5','r')
+
+
+    f = h5py.File('path_to_data/labels_tree.h5','r')
     delay = int(np.array(f['delay'])[0])
     eigfunctions = np.array(f['eigfunctions'])
     final_labels = ma.masked_invalid(np.array(f['final_labels'],dtype=int))
     final_labels_mask = np.array(f['final_labels_mask'])
     sel = final_labels_mask==1
     final_labels[sel] = ma.masked
-    mlg = f['measures_lambdas']
-    lambdas = []
+    mlg = f['measures']
     measures = []
     for k in np.sort(list(mlg.keys())):
-        lambdas.append(np.array(mlg[str(k)]['lambdas']))
         measures.append(np.array(mlg[str(k)]['measures']))
     labels_tree = np.array(f['labels_tree'],dtype=int)
     f.close()
@@ -139,11 +138,11 @@ def main(argv):
     sel = cluster_traj==state_idx
     labels_state = labels_traj.copy()
     labels_state[~sel] = ma.masked
-    
-    
+
+
 
     print('Simulate symbolic sequence',flush=True)
-    
+
     lcs,P = op_calc.transition_matrix(labels_state,delay,return_connected=True)
     final_labels_state = op_calc.get_connected_labels(labels_state,lcs)
     len_sim = int(len_w/delay)
@@ -153,11 +152,11 @@ def main(argv):
 
     print(sims[0][:10])
     print(len(sims[0]),flush=True)
-    
+
     print('Making time series  simulations',flush=True)
 
     ts_sims = Parallel(n_jobs=100)(delayed(sim_ts_parallel)(sims,traj_matrix,labels_traj,K_star,delay,dim,len_w,k_idx) for k_idx in range(n_sims))
-    
+
     print('Interpolating gaps and smoothing',flush=True)
 
     ts_interp_sims=[]
@@ -173,10 +172,10 @@ def main(argv):
     ts_interp_sims = np.array(ts_interp_sims)
     ts_smooth_sims = np.array(ts_smooth_sims)
     ts_sims = np.array(ts_sims)
-   
+
     print(ts_interp_sims.shape,ts_smooth_sims.shape,flush=True)
     print('Saving results',flush=True)
-    output_path = '/flash/StephensU/antonio/Foraging/animations/'
+    output_path = 'path_to_data'
     f = h5py.File(output_path+'tseries_sims_state_{}.h5'.format(state_idx),'w')
     ts_ = f.create_dataset('ts_sims',ts_sims.shape)
     ts_[...] = ts_sims
@@ -188,9 +187,9 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv)
-    
-    
-    
+
+
+
 #     #example simulation
 #     n_sims = 100
 #     sim_random = Parallel(n_jobs=102)(delayed(get_random_state)(traj_matrix,labels_traj,sim)

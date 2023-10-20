@@ -6,7 +6,8 @@ import numpy.ma as ma
 # %matplotlib notebook
 import sys
 import os
-sys.path.append('/home/a/antonio-costa/bridging_scales_manuscript/utils')
+#replace 'path_to_utils' and 'path_to_data'
+sys.path.append('path_to_utils')
 import operator_calculations as op_calc
 import argparse
 
@@ -28,7 +29,7 @@ def subdivide_state_optimal(state_to_split,phi2,kmeans_labels,inv_measure,P,indi
 
 def recursive_partitioning_optimal(final_labels,delay,phi2,inv_measure,P,n_final_states,save=False):
     c_range,rho_sets,c_opt,kmeans_labels =  op_calc.optimal_partition(phi2,inv_measure,P,return_rho=True)
-    
+
     labels_tree=np.zeros((n_final_states,len(kmeans_labels)))
     labels_tree[0,:] = kmeans_labels
     k=1
@@ -74,12 +75,12 @@ def recursive_partitioning_optimal(final_labels,delay,phi2,inv_measure,P,n_final
     sel = ~np.isnan(kmeans_labels)
     measures = [(inv_measure[sel][kmeans_labels[sel]==state]).sum() for state in np.unique(kmeans_labels[sel])]
     measures_iter.append(measures)
-    return labels_tree,measures_iter 
+    return labels_tree,measures_iter
 
 
 def main():
     n_clusters=1000
-    f = h5py.File('/bucket/StephensU/antonio/ForagingN2_data/symbol_sequences/labels_{}_clusters.h5'.format(n_clusters),'r')
+    f = h5py.File('path_to_data/symbol_sequences/labels_{}_clusters.h5'.format(n_clusters),'r')
     labels_traj = ma.array(f['labels_traj'],dtype=int)
     mask_traj = np.array(f['mask_traj'],dtype=bool)
     labels_phspace = ma.array(f['labels_phspace'],dtype=int)
@@ -90,7 +91,7 @@ def main():
 
     labels_traj[mask_traj] = ma.masked
     labels_phspace[mask_phspace] = ma.masked
-    
+
     frameRate=16.
     dt=1/frameRate
     delay = int(.75*frameRate)
@@ -111,11 +112,11 @@ def main():
     eigfunctions_traj[final_labels.mask] = ma.masked
 
     phi2 = eigfunctions[:,1]
-    
+
     n_final_states=6
     labels_tree,measures = recursive_partitioning_optimal(final_labels,delay,phi2,inv_measure,P,n_final_states)
 
-    f = h5py.File('/flash/StephensU/antonio/Foraging/subdivide_states/labels_tree.h5','w')
+    f = h5py.File('path_to_data/labels_tree.h5','w')
     d_ = f.create_dataset('delay',(1,))
     d_[...] = delay
     ef_ = f.create_dataset('eigfunctions',eigfunctions.shape)
@@ -133,9 +134,9 @@ def main():
         ml_ = m_.create_dataset(str(ks),np.array(measures[ks]).shape)
         ml_[...] = np.array(measures[ks])
     f.close()
-        
-    
-    
-    
+
+
+
+
 if __name__ == "__main__":
     main()
