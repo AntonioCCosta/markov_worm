@@ -1,6 +1,6 @@
 # markov_worm
 
-This repository contains the scripts for reproducting the results presented in
+This repository contains the scripts for reproducing the results presented in
 
 Costa AC, Ahamed T, Jordan D, Stephens GJ (2023) "A Markovian dynamics for *C. elegans* behavior across scales" https://arxiv.org/abs/2310.12883
 
