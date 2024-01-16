@@ -5,7 +5,7 @@ from scipy.sparse import csc_matrix as sparse_matrix
 from scipy.sparse.linalg import eigs
 from scipy.linalg import eig
 
-from scipy.sparse import diags,identity,coo_matrix
+from scipy.sparse import diags,identity,coo_matrix,csr_matrix
 import msmtools.estimation as msm_estimation
 import msmtools.analysis as msm_analysis
 import stats
@@ -286,6 +286,7 @@ from scipy.signal import find_peaks
 
 
 def optimal_partition(phi2,inv_measure,P,return_rho = True):
+    #make sure P is a sparse matrix
     c_range = np.sort(phi2)[1:-1]
     rho_c = np.zeros(len(c_range))
     rho_sets = np.zeros((len(c_range),2))
@@ -310,9 +311,6 @@ def optimal_partition(phi2,inv_measure,P,return_rho = True):
         else:
             return kmeans_labels
 
-
-
-from scipy.sparse import csr_matrix,diags,identity
 
 def entropy_production(labels,tau):
     dtrajs = get_dtrajs(labels)
