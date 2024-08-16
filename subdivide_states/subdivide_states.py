@@ -117,19 +117,25 @@ def main():
     labels_tree,measures = recursive_partitioning_optimal(final_labels,delay,phi2,inv_measure,P,n_final_states)
 
     f = h5py.File('path_to_data/labels_tree.h5','w')
-    d_ = f.create_dataset('delay',(1,))
+    d_ = f.create_dataset('delay',(1,)) 
+    #time delay used to estimate the transition  matrix
     d_[...] = delay
-    ef_ = f.create_dataset('eigfunctions',eigfunctions.shape)
+    ef_ = f.create_dataset('eigfunctions',eigfunctions.shape) 
+    #each collum correspponds to the normalized right eigenvectors of the transition matrix
     ef_[...] = eigfunctions
-    fl_ = f.create_dataset('final_labels',final_labels.shape)
+    fl_ = f.create_dataset('final_labels',final_labels.shape) 
+    #final labels obtained after finding all the connected components of the graph
     fl_[...] = final_labels
     final_labels_mask = np.zeros(final_labels.shape)
     final_labels_mask[final_labels.mask] = 1
-    flm_ = f.create_dataset('final_labels_mask',final_labels_mask.shape)
+    flm_ = f.create_dataset('final_labels_mask',final_labels_mask.shape) 
+    #mask of the final labels to keep track of missing data frames
     flm_[...] = final_labels_mask
     lt_ = f.create_dataset('labels_tree',labels_tree.shape)
+    #each row corresponds to the coarse-grained state corresponding to each microstate at different subdivision levels
     lt_[...] = labels_tree
     m_ = f.create_group('measures')
+    #each element corresponds to the steady-state distribution among coarse-grained states at different subdivision levels
     for ks in range(len(measures)):
         ml_ = m_.create_dataset(str(ks),np.array(measures[ks]).shape)
         ml_[...] = np.array(measures[ks])
