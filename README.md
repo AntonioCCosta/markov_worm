@@ -16,7 +16,7 @@ The following files correspond to the dataset:
 (2) data/Foraging_N2/shapes.mat \
 (3) data/Foraging_N2/PNAS2011-DataStitched.mat 
 
-(1,2) were analyzed in Stephens et al. (2008) PLoS Comput. Biol., and (3) results from the work on Broekmans et al. (2016) eLife.
+(1) was analyzed in Stephens et al. (2008) PLoS Comput. Biol. to produce (2), and (3) results from the work on Broekmans et al. (2016) eLife.
 
 In the dataset, we also include some files used in the notebooks that result from calculations obtained with the python scripts within each folder. For example 
 
