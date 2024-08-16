@@ -10,7 +10,7 @@ See example [reconstruction of path from posture](https://antonioccosta.github.i
 
 To run the scripts and jupyter notebooks to reproduce the figures, you'll need to [download the dataset at https://doi.org/10.34740/kaggle/ds/3882219](https://doi.org/10.34740/kaggle/ds/3882219), and update the paths to the ./utils folder and the data folders.
 
-The following files correspond to the dataset: \
+The following files correspond to the dataset: 
 
 (1) data/Foraging_N2/EigenWorms.csv \
 (2) data/Foraging_N2/shapes.mat \
