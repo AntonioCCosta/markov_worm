@@ -34,10 +34,10 @@ def main(argv):
 
     tseries_all = ma.vstack(masked_ts_w)
 
-    #tseries_all = tseries_all[:1000]
-
+    #obtain the delay embedded trajectory matrix
     traj_matrix = embed.trajectory_matrix(tseries_all,K=K_star)
 
+    #perform ICA
     sel = ~np.any(traj_matrix.mask,axis=1)
     X = traj_matrix[sel]
     transformer = FastICA(n_components=m_star,random_state=0,max_iter = 10000,tol = 1e-10)
@@ -62,8 +62,8 @@ def main(argv):
     print('Partitioning...')
 
     cluster_range = np.array(np.arange(500,3100,500),dtype=int)
-    #cluster_range = cluster_range[:1]
     for n_clusters in cluster_range:
+        #perform k-means partitioning of the trajectory matrix and the ICA phspace into n_clusters
         labels_traj,centers_traj = cl.kmeans_knn_partition(traj_matrix,n_seeds=n_clusters,return_centers=True)
         labels_phspace,centers_phspace = cl.kmeans_knn_partition(phspace,n_seeds=n_clusters,return_centers=True)
         f = h5py.File('path_to_data/symbol_sequences/labels_{}_clusters.h5'.format(n_clusters),'w')
