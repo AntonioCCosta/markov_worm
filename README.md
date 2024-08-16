@@ -14,15 +14,15 @@ The following files correspond to the dataset: \
 
 (1) data/Foraging_N2/EigenWorms.csv \
 (2) data/Foraging_N2/shapes.mat \
-(3) data/Foraging_N2/PNAS2011-DataStitched.mat \
+(3) data/Foraging_N2/PNAS2011-DataStitched.mat 
 
 (1,2) were analyzed in Stephens et al. (2008) PLoS Comput. Biol., and (3) results from the work on Broekmans et al. (2016) eLife.
 
-In the dataset, we also include some files used in the notebooks that result from calculations obtained with the python scripts within each folder. For example \
+In the dataset, we also include some files used in the notebooks that result from calculations obtained with the python scripts within each folder. For example 
 
 (1) "data/tscales_P/results_{}.h5" results from running "./tscales_eigvals/compute_noise_floor_P.py"; \
 (2) "data/Foraging_N2/phspace_K_10_m_7.h5" results from running "symbol_sequences/get_phspace_labels.py"; \
-(3) "data/labels_tree/labels_tree.h5" results from running "subdivide_states/subdivide_states.py". \
+(3) "data/labels_tree/labels_tree.h5" results from running "subdivide_states/subdivide_states.py". 
 
 
 Our calculations were performed using Python 3.7.3 and the following packages:
