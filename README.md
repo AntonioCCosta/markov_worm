@@ -4,9 +4,9 @@ This repository contains the scripts for reproducing the results presented in
 
 Costa AC, Ahamed T, Jordan D, Stephens GJ (2024) "A Markovian dynamics for *C. elegans* behavior across scales" [PNAS](https://www.pnas.org/doi/10.1073/pnas.2318805121)
 
-This model is able to predict worm foraging behavior across scales, from sub-second posture movements to minutes long search strategies, bridging from posture to path through a combination of delay embedding, Markov modelling and resistive force theory.
+This model is able to predict worm foraging behavior across scales, from sub-second posture movements to minutes long search strategies, bridging from posture to path through a combination of delay embedding, Markov modelling and resistive force theory. For a detailed tutorial of the modelling approach, [check this github repository](https://github.com/AntonioCCosta/maximally_predictive_states/) that runs through every step of the analysis on two different model time series.
 
-See example [reconstruction of path from posture](https://antonioccosta.github.io/download/combined_traj.mp4), and a [comparison between simulations and data](https://antonioccosta.github.io/download/postures_sim_vs_data.mp4).
+Also, check out an example [reconstruction of path from posture](https://antonioccosta.github.io/download/combined_traj.mp4), and a [comparison between postural simulations and data](https://antonioccosta.github.io/download/postures_sim_vs_data.mp4).
 
 To run the scripts and jupyter notebooks to reproduce the figures, you'll need to [download the dataset at https://doi.org/10.34740/kaggle/ds/3882219](https://doi.org/10.34740/kaggle/ds/3882219), and update the paths to the ./utils folder and the data folders.
 
@@ -23,7 +23,6 @@ In the dataset, we also include some files used in the notebooks that result fro
 (1) "data/tscales_P/results_{}.h5" results from running "./tscales_eigvals/compute_noise_floor_P.py"; \
 (2) "data/Foraging_N2/phspace_K_10_m_7.h5" results from running "./symbol_sequences/get_phspace_labels.py"; \
 (3) "data/labels_tree/labels_tree.h5" results from running "./subdivide_states/subdivide_states.py". 
-
 
 Our calculations were performed using Python 3.7.3 and the following packages:
 
