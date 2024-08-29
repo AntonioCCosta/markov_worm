@@ -4,7 +4,9 @@ This repository contains the scripts for reproducing the results presented in
 
 Costa AC, Ahamed T, Jordan D, Stephens GJ (2024) "A Markovian dynamics for *C. elegans* behavior across scales" [PNAS](https://www.pnas.org/doi/10.1073/pnas.2318805121)
 
-This model is able to predict worm foraging behavior across scales, from sub-second posture movements to minutes long search strategies, bridging from posture to path through a combination of delay embedding, Markov modelling and resistive force theory. For a detailed tutorial of the modelling approach (introduced in [Costa et al. 2023 Chaos](https://pubs.aip.org/aip/cha/article/33/2/023136/2876286/Maximally-predictive-states-From-partial)), [check this github repository](https://github.com/AntonioCCosta/maximally_predictive_states/) that runs through every step of the analysis on two different model time series.
+This model is able to predict worm foraging behavior across scales, from sub-second posture movements to minutes long search strategies, bridging from posture to path through a combination of delay embedding, Markov modelling and resistive force theory. 
+
+For a detailed tutorial of the modelling approach (introduced in [Costa et al. 2023 Chaos](https://pubs.aip.org/aip/cha/article/33/2/023136/2876286/Maximally-predictive-states-From-partial)), [check this github repository](https://github.com/AntonioCCosta/maximally_predictive_states/) that runs through every step of the analysis on two different model time series.
 
 Also, check out an example [reconstruction of path from posture](https://antonioccosta.github.io/download/combined_traj.mp4), and a [comparison between postural simulations and data](https://antonioccosta.github.io/download/postures_sim_vs_data.mp4).
 
