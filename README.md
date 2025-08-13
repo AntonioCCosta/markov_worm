@@ -33,3 +33,5 @@ Our calculations were performed using Python 3.7.3 and the following packages:
 - scikit-learn 0.22
 - msmtools 1.2.4
 - umap 0.5.3 
+
+**Note**: msmtools has been deprecated. We recommend using the [deeptime package](https://deeptime-ml.github.io/latest/index.html) instead, where most functions we use will be in deeptime.markov.tools.estimation or deeptime.markov.tools.analysis
